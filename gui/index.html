@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Upload Viewer</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        #video-list { margin-bottom: 20px; max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; }
+        .video-item { padding: 8px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .video-item:hover { background-color: #f0f0f0; }
+        .video-item:last-child { border-bottom: none; }
+        #video-player-container { border: 1px solid #ccc; padding: 10px; }
+        #video-player { width: 100%; max-width: 640px; height: auto; background-color: #000; }
+        #player-title { margin-top: 0; margin-bottom: 10px; font-weight: bold;}
+         #preview-info { font-size: 0.9em; color: #555; height: 1.2em; /* Reserve space */}
+    </style>
+</head>
+<body>
+<h1>Uploaded Videos</h1>
+
+<div id="video-list">
+    Loading videos...
+</div>
+
+<div id="preview-info">Hover over a video name for a preview.</div>
+
+<div id="video-player-container">
+    <h2 id="player-title">Click a video to play</h2>
+    <video id="video-player" controls muted>
+        Your browser does not support the video tag.
+    </video>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
