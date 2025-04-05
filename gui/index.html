@@ -5,31 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Upload Viewer</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; }
-        #video-list { margin-bottom: 20px; max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; }
+        body { font-family: sans-serif; margin: 20px; display: flex; flex-direction: column; align-items: center; }
+        #container { max-width: 800px; width: 100%; }
+        #video-list { margin-bottom: 20px; max-height: 250px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; }
         .video-item { padding: 8px; cursor: pointer; border-bottom: 1px solid #eee; }
         .video-item:hover { background-color: #f0f0f0; }
         .video-item:last-child { border-bottom: none; }
-        #video-player-container { border: 1px solid #ccc; padding: 10px; }
-        #video-player { width: 100%; max-width: 640px; height: auto; background-color: #000; }
-        #player-title { margin-top: 0; margin-bottom: 10px; font-weight: bold;}
-         #preview-info { font-size: 0.9em; color: #555; height: 1.2em; /* Reserve space */}
+
+        .player-container { border: 1px solid #ccc; padding: 15px; margin-top: 20px; width: 100%; box-sizing: border-box; }
+        .player-container h2 { margin-top: 0; margin-bottom: 10px; font-weight: bold; font-size: 1.1em; }
+
+        #video-preview-player { width: 100%; max-width: 480px; /* Smaller preview */ height: auto; background-color: #111; display: block; margin: 0 auto; }
+        #video-main-player { width: 100%; max-width: 640px; /* Larger main player */ height: auto; background-color: #000; display: block; margin: 0 auto; }
+
+        #preview-title { color: #555; }
+        #main-player-title { color: #333; }
+
     </style>
 </head>
 <body>
-<h1>Uploaded Videos</h1>
+<div id="container">
+    <h1>Uploaded Videos</h1>
 
-<div id="video-list">
-    Loading videos...
-</div>
+    <div id="video-list">
+        Loading videos...
+    </div>
 
-<div id="preview-info">Hover over a video name for a preview.</div>
+    <div class="player-container">
+        <h2 id="preview-title">Hover over video name for preview</h2>
+        <video id="video-preview-player" muted preload="none">
+            Your browser does not support the video tag.
+        </video>
+    </div>
 
-<div id="video-player-container">
-    <h2 id="player-title">Click a video to play</h2>
-    <video id="video-player" controls muted>
-        Your browser does not support the video tag.
-    </video>
+    <div class="player-container">
+        <h2 id="main-player-title">Click a video name to play</h2>
+        <video id="video-main-player" controls preload="metadata">
+            Your browser does not support the video tag.
+        </video>
+    </div>
 </div>
 
 <script src="script.js"></script>

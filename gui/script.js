@@ -1,9 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     const videoListDiv = document.getElementById('video-list');
-    const videoPlayer = document.getElementById('video-player');
-    const playerTitle = document.getElementById('player-title');
-    const previewInfo = document.getElementById('preview-info');
-    let previewTimeout = null; // To manage the 10s preview pause
+    const previewPlayer = document.getElementById('video-preview-player');
+    const mainPlayer = document.getElementById('video-main-player');
+    const previewTitle = document.getElementById('preview-title');
+    const mainPlayerTitle = document.getElementById('main-player-title');
+
+    // Function to stop and reset the preview player
+    function stopPreview() {
+        previewPlayer.pause();
+        previewPlayer.removeAttribute('src'); // Remove the source
+        previewPlayer.load(); // Reset the player state
+        previewTitle.textContent = 'Hover over video name for preview';
+        console.log("Preview stopped and reset.");
+    }
+
 
     function loadVideoList() {
         fetch('/api/videos')
@@ -19,6 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     videoListDiv.textContent = 'No videos uploaded yet.';
                     return;
                 }
+
+                console.log('Successfully fetched video list:', videoFiles);
+
                 videoFiles.forEach(filename => {
                     const item = document.createElement('div');
                     item.classList.add('video-item');
@@ -27,63 +40,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // --- Event Listeners ---
 
-                    // Click: Play the full video
-                    item.addEventListener('click', () => {
-                        const file = item.dataset.filename;
-                        console.log(`Click: Play ${file}`);
-                        playerTitle.textContent = `Now Playing: ${file}`;
-                        videoPlayer.src = `/videos/${encodeURIComponent(file)}`; // URL encode filename
-                        videoPlayer.muted = false; // Unmute for full playback
-                        videoPlayer.load(); // Load the new source
-                        videoPlayer.play().catch(e => console.error("Play error:", e)); // Attempt to play
-                        clearTimeout(previewTimeout); // Cancel any pending preview pause
-                         previewInfo.textContent = ' '; // Clear preview text
-                    });
-
-                    // Mouse Enter: Start preview (load & play muted for ~10s)
+                    // Mouse Enter on list item: Start preview
                     item.addEventListener('mouseenter', () => {
                         const file = item.dataset.filename;
-                        console.log(`Hover: Preview ${file}`);
-                        previewInfo.textContent = `Previewing: ${file}`;
+                        console.log(`Hover Enter: Preview ${file}`);
+                        previewTitle.textContent = `Previewing: ${file}`;
 
-                        // Use the same player for preview, but keep it muted
-                        videoPlayer.src = `/videos/${encodeURIComponent(file)}`;
-                        videoPlayer.muted = true;
-                        videoPlayer.currentTime = 0; // Start from beginning
-                        videoPlayer.load();
-                        const playPromise = videoPlayer.play();
+                        previewPlayer.src = `/videos/${encodeURIComponent(file)}`;
+                        previewPlayer.load(); // Important to load the new source
+                        const playPromise = previewPlayer.play();
 
                         if (playPromise !== undefined) {
-                            playPromise.then(_ => {
-                                // Playback started
-                                clearTimeout(previewTimeout); // Clear any existing timeout
-                                previewTimeout = setTimeout(() => {
-                                    if (videoPlayer.src.endsWith(encodeURIComponent(file)) && !videoPlayer.paused) {
-                                        console.log(`Preview pause: ${file}`);
-                                        videoPlayer.pause();
-                                         previewInfo.textContent = 'Preview paused.';
-                                    }
-                                }, 10000); // Pause after 10 seconds
-                            }).catch(error => {
-                                // Autoplay was prevented.
-                                console.warn("Preview autoplay prevented:", error);
-                                previewInfo.textContent = 'Preview failed to start automatically.';
-                                clearTimeout(previewTimeout);
+                            playPromise.catch(error => {
+                                console.warn(`Preview autoplay prevented for ${file}:`, error);
+                                // Optionally update title if play fails
+                                // previewTitle.textContent = `Preview failed to start for ${file}`;
                             });
                         }
                     });
 
-                     // Mouse Leave: Stop preview / clear info (optional)
+                     // Mouse Leave from list item: Stop preview
                       item.addEventListener('mouseleave', () => {
-                          // Option 1: Pause immediately if it was the preview source
-                          // if (videoPlayer.src.endsWith(encodeURIComponent(item.dataset.filename)) && !videoPlayer.paused) {
-                          //    videoPlayer.pause();
-                          // }
-                          // Option 2: Just clear the timeout and info text
-                          clearTimeout(previewTimeout);
-                          previewInfo.textContent = 'Hover over a video name for a preview.';
+                          console.log(`Hover Leave: Stop preview for ${item.dataset.filename}`);
+                          stopPreview();
                      });
 
+                    // Click on list item: Play in main player
+                    item.addEventListener('click', () => {
+                        const file = item.dataset.filename;
+                        console.log(`Click: Play ${file} in main player`);
+                        mainPlayerTitle.textContent = `Now Playing: ${file}`;
+
+                        // Stop preview if it happens to be the same video
+                        // (though mouseleave should handle most cases)
+                        if (previewPlayer.currentSrc.endsWith(encodeURIComponent(file))) {
+                             stopPreview();
+                        }
+
+                        mainPlayer.src = `/videos/${encodeURIComponent(file)}`;
+                        mainPlayer.load();
+                        const playPromise = mainPlayer.play();
+
+                         if (playPromise !== undefined) {
+                             playPromise.catch(error => {
+                                 console.error(`Main player play error for ${file}:`, error);
+                                 mainPlayerTitle.textContent = `Could not play: ${file}`;
+                             });
+                         }
+                    });
 
                     videoListDiv.appendChild(item);
                 });
@@ -98,5 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadVideoList();
 
     // Optional: Periodically refresh the list
-    setInterval(loadVideoList, 30000); // Refresh every 30 seconds
+    // Consider if this is needed; reloading might interrupt playback.
+    // setInterval(loadVideoList, 30000); // Refresh every 30 seconds
 });
