@@ -5,15 +5,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewTitle = document.getElementById('preview-title');
     const mainPlayerTitle = document.getElementById('main-player-title');
 
+    // Keep track of the time update event listener function
+    let timeUpdateHandler = null;
+
     // Function to stop and reset the preview player
     function stopPreview() {
+        if (timeUpdateHandler) {
+            previewPlayer.removeEventListener('timeupdate', timeUpdateHandler);
+            timeUpdateHandler = null;
+        }
         previewPlayer.pause();
-        previewPlayer.removeAttribute('src'); // Remove the source
-        previewPlayer.load(); // Reset the player state
+        previewPlayer.removeAttribute('src');
+        previewPlayer.load();
         previewTitle.textContent = 'Hover over video name for preview';
         console.log("Preview stopped and reset.");
     }
-
 
     function loadVideoList() {
         fetch('/api/videos')
@@ -42,28 +48,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Mouse Enter on list item: Start preview
                     item.addEventListener('mouseenter', () => {
+                        // If there is already an active time update listener, remove it
+                        if (timeUpdateHandler) {
+                            previewPlayer.removeEventListener('timeupdate', timeUpdateHandler);
+                        }
+
                         const file = item.dataset.filename;
                         console.log(`Hover Enter: Preview ${file}`);
                         previewTitle.textContent = `Previewing: ${file}`;
 
                         previewPlayer.src = `/videos/${encodeURIComponent(file)}`;
-                        previewPlayer.load(); // Important to load the new source
+                        previewPlayer.load();
                         const playPromise = previewPlayer.play();
+
+                        // Define the handler that checks playback time
+                        timeUpdateHandler = () => {
+                            if (previewPlayer.currentTime >= 10) {
+                                previewPlayer.pause();
+                                console.log(`Preview paused at 10 seconds for ${file}`);
+                                // Optionally, reset the time so that the preview always starts at 0
+                                previewPlayer.currentTime = 0;
+                                previewPlayer.removeEventListener('timeupdate', timeUpdateHandler);
+                                timeUpdateHandler = null;
+                            }
+                        };
+
+                        // Attach the time update listener
+                        previewPlayer.addEventListener('timeupdate', timeUpdateHandler);
 
                         if (playPromise !== undefined) {
                             playPromise.catch(error => {
                                 console.warn(`Preview autoplay prevented for ${file}:`, error);
-                                // Optionally update title if play fails
-                                // previewTitle.textContent = `Preview failed to start for ${file}`;
                             });
                         }
                     });
 
-                     // Mouse Leave from list item: Stop preview
-                      item.addEventListener('mouseleave', () => {
-                          console.log(`Hover Leave: Stop preview for ${item.dataset.filename}`);
-                          stopPreview();
-                     });
+                    // Mouse Leave from list item: Stop preview
+                    item.addEventListener('mouseleave', () => {
+                        console.log(`Hover Leave: Stop preview for ${item.dataset.filename}`);
+                        stopPreview();
+                    });
 
                     // Click on list item: Play in main player
                     item.addEventListener('click', () => {
@@ -72,21 +96,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         mainPlayerTitle.textContent = `Now Playing: ${file}`;
 
                         // Stop preview if it happens to be the same video
-                        // (though mouseleave should handle most cases)
                         if (previewPlayer.currentSrc.endsWith(encodeURIComponent(file))) {
-                             stopPreview();
+                            stopPreview();
                         }
 
                         mainPlayer.src = `/videos/${encodeURIComponent(file)}`;
                         mainPlayer.load();
                         const playPromise = mainPlayer.play();
 
-                         if (playPromise !== undefined) {
-                             playPromise.catch(error => {
-                                 console.error(`Main player play error for ${file}:`, error);
-                                 mainPlayerTitle.textContent = `Could not play: ${file}`;
-                             });
-                         }
+                        if (playPromise !== undefined) {
+                            playPromise.catch(error => {
+                                console.error(`Main player play error for ${file}:`, error);
+                                mainPlayerTitle.textContent = `Could not play: ${file}`;
+                            });
+                        }
                     });
 
                     videoListDiv.appendChild(item);
@@ -102,6 +125,5 @@ document.addEventListener('DOMContentLoaded', () => {
     loadVideoList();
 
     // Optional: Periodically refresh the list
-    // Consider if this is needed; reloading might interrupt playback.
     setInterval(loadVideoList, 30000); // Refresh every 30 seconds
 });

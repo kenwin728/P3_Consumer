@@ -9,8 +9,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d5231778-d6f5-4f96-b67d-c91e73f4f659" name="Changes" comment="separated the hovered video preview player and the clicked video player">
+    <list default="true" id="d5231778-d6f5-4f96-b67d-c91e73f4f659" name="Changes" comment="periodically refresh the video list every 30 seconds">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/gui/script.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +66,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "last_opened_file_path": "D:/Users_Data/Kenwin/Desktop/Java Programming Files/P3_Consumer",
+    "last_opened_file_path": "D:/Users_Data/Kenwin/Desktop/Java Programming Files/P3_Producer",
     "project.structure.last.edited": "Artifacts",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0"
@@ -94,12 +95,20 @@
       <option name="project" value="LOCAL" />
       <updated>1743872388418</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="periodically refresh the video list every 30 seconds">
+      <created>1743918265228</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1743918265229</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="initial commit" />
     <MESSAGE value="separated the hovered video preview player and the clicked video player" />
-    <option name="LAST_COMMIT_MESSAGE" value="separated the hovered video preview player and the clicked video player" />
+    <MESSAGE value="periodically refresh the video list every 30 seconds" />
+    <option name="LAST_COMMIT_MESSAGE" value="periodically refresh the video list every 30 seconds" />
   </component>
 </project>
