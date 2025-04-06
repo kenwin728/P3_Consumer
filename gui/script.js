@@ -103,5 +103,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Optional: Periodically refresh the list
     // Consider if this is needed; reloading might interrupt playback.
-    // setInterval(loadVideoList, 30000); // Refresh every 30 seconds
+    setInterval(loadVideoList, 30000); // Refresh every 30 seconds
 });
